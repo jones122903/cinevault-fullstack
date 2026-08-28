@@ -17,8 +17,11 @@ const Actor = {
   },
 
   async create(data) {
-    const [id] = await db("actors").insert(data);
-    return this.findById(id);
+    const [insertedActor] = await db("actors")
+      .insert(data)
+      .returning("id");
+
+    return this.findById(insertedActor.id);
   },
 
   async findByIdAndUpdate(id, data, options = {}) {

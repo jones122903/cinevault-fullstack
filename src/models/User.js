@@ -6,14 +6,16 @@ const User = {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(userData.password, salt);
 
-    const [id] = await db("users").insert({
-      name: userData.name,
-      email: userData.email,
-      password: hashedPassword,
-      role: userData.role || "user",
-    });
+    const [insertedUser] = await db("users")
+      .insert({
+        name: userData.name,
+        email: userData.email,
+        password: hashedPassword,
+        role: userData.role || "user",
+      })
+      .returning("id");
 
-    return this.findById(id);
+    return this.findById(insertedUser.id);
   },
 
   async findOne(filter) {

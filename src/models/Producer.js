@@ -15,8 +15,11 @@ const Producer = {
   },
 
   async create(data) {
-    const [id] = await db("producers").insert(data);
-    return this.findById(id);
+    const [insertedProducer] = await db("producers")
+      .insert(data)
+      .returning("id");
+
+    return this.findById(insertedProducer.id);
   },
 
   async findByIdAndUpdate(id, data, options = {}) {
