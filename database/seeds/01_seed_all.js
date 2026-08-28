@@ -112,4 +112,36 @@ exports.seed = async function (knex) {
       );
     }
   }
+    // Reset PostgreSQL auto-increment sequences after inserting explicit IDs
+  if (knex.client.config.client === "pg") {
+    await knex.raw(`
+      SELECT setval(
+        pg_get_serial_sequence('users', 'id'),
+        COALESCE((SELECT MAX(id) FROM users), 1)
+      )
+    `);
+
+    await knex.raw(`
+      SELECT setval(
+        pg_get_serial_sequence('producers', 'id'),
+        COALESCE((SELECT MAX(id) FROM producers), 1)
+      )
+    `);
+
+    await knex.raw(`
+      SELECT setval(
+        pg_get_serial_sequence('actors', 'id'),
+        COALESCE((SELECT MAX(id) FROM actors), 1)
+      )
+    `);
+
+    await knex.raw(`
+      SELECT setval(
+        pg_get_serial_sequence('movies', 'id'),
+        COALESCE((SELECT MAX(id) FROM movies), 1)
+      )
+    `);
+
+    console.log("✅ PostgreSQL sequences synchronized");
+  }
 };
