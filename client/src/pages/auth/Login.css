@@ -1,0 +1,89 @@
+/* styles.css */
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-header {
+  text-align: center;
+}
+
+.login-logo img {
+  height: 50px;
+}
+
+.login-title {
+  margin: 1rem;
+}
+
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.password-group {
+  position: relative;
+}
+
+.login-input {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #999;
+}
+
+.button-group {
+  margin-bottom: 1rem;
+}
+
+.login-btn,
+.signup-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.login-btn {
+  background-color: #4caf50;
+  color: white;
+}
+
+.login-btn:disabled {
+  background-color: #ccc;
+}
+
+.signup-btn {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.waves-wrp {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}

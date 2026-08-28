@@ -1,0 +1,54 @@
+/* AdminLayout.css */
+
+/* General Layout */
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Navbar Styling */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #001529;
+  padding: 0 20px;
+  height: 60px;
+  color: #fff;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-left .logo {
+  height: 40px;
+  cursor: pointer;
+}
+
+.navbar-right {
+  display: flex;
+  gap: 20px;
+}
+
+.navbar-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: #fff;
+}
+
+.navbar-item.active {
+  border-bottom: 2px solid #1890ff;
+}
+
+.navbar-item .icon {
+  margin-right: 8px;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}

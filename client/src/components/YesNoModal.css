@@ -1,0 +1,61 @@
+.yes-no-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.yes-no-modal {
+  background-color: #ffffff;
+  padding: 24px 32px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 360px;
+  font-family: Arial, sans-serif;
+}
+
+.yes-no-modal p {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: #333;
+}
+
+.yes-no-modal .actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.yes-no-modal button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, opacity 0.25s ease;
+}
+
+.yes-no-modal .yes {
+  background-color: #28a745;
+  color: white;
+}
+
+.yes-no-modal .yes:hover {
+  background-color: #218838;
+}
+
+.yes-no-modal .no {
+  background-color: #dc3545;
+  color: white;
+}
+
+.yes-no-modal .no:hover {
+  background-color: #c82333;
+}

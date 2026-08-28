@@ -1,0 +1,353 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+body {
+  overflow: hidden;
+  height: 100%;
+}
+/* =========================== COMMON CSS START ====================== */
+.add-button-head {
+  display: flex;
+  justify-content: end;
+  margin-bottom: 9px;
+}
+.save_button {
+  display: flex;
+  justify-content: end !important;
+}
+.add-role-button {
+  display: flex;
+  justify-content: end;
+  margin-bottom: 9px;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+input[data-autocompleted] {
+  background-color: transparent !important;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.App {
+  position: relative;
+}
+
+.theme-switcher {
+  border-radius: 50%;
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  z-index: 1000;
+}
+
+/* ============================ COMMON CSS END  ====================== */
+
+/* ===================== ======== LOGIN PAGE START ======================= */
+.login-card {
+  width: 350px;
+  border-radius: 10px;
+  padding: 0px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(1.2px);
+  -webkit-backdrop-filter: blur(1.5px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 1%;
+  z-index: 200;
+}
+
+.login-logo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5%;
+}
+
+.waves > use {
+  animation: move-forever 2s -2s linear infinite;
+}
+
+.waves > use:nth-child(2) {
+  animation-delay: -3s;
+  animation-duration: 6s;
+}
+.waves > use:nth-child(3) {
+  animation-delay: -4s;
+  animation-duration: 3s;
+}
+
+@keyframes move-forever {
+  0% {
+    transform: translate(-90px, 0%);
+  }
+  100% {
+    transform: translate(85px, 0%);
+  }
+}
+
+.waves-wrp svg {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 30vw;
+  max-height: 200px;
+  color: #689128;
+  backdrop-filter: blur(1.2px);
+  -webkit-backdrop-filter: blur(1.5px);
+}
+/* ===================== ======== LOGIN PAGE END ======================= */
+
+/* ===================== ======== ADMIN LAYOUT CSS START======================= */
+
+.ant-layout {
+  min-height: 100vh;
+}
+:where(.css-dev-only-do-not-override-fmgasf).ant-layout {
+  background-color: #141414;
+}
+.layout-wrp {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.layout-wrp.light {
+}
+.layout-wrp.dark {
+}
+.common_sidebar_logo {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-bottom: 1.8vw;
+}
+
+.common_sidebar_logo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.layout-wrp.collapsed .common_sidebar_logo > img {
+  width: 4vw;
+  /* margin-left: 5px; */
+  margin: 0 auto;
+  transition: width 0.3s ease-in-out;
+}
+
+.layout-wrp.expanded .common_sidebar_logo > img {
+  width: 132px;
+  /* margin-left: 10px; */
+  margin: 0 auto;
+  transition: width 0.3s ease-in-out;
+}
+
+.sidebar-wrp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.5% 0.5%;
+  padding: 0.8% 0.25%;
+  border-radius: 24px;
+  min-height: 600px;
+  scrollbar-width: thin !important; /* Firefox support */
+  scrollbar-color: #e8913a #f1f1f1 !important; /* Thumb (purple) & track (light gray) */
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable both-edges;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  height: 100vh;
+  overflow-y: auto;
+}
+.ant-menu-light.ant-menu-root.ant-menu-inline,
+.ant-menu.ant-menu-root.ant-menu-inline,
+.ant-menu-light.ant-menu-root.ant-menu-vertical,
+.ant-menu.ant-menu-root.ant-menu-vertical {
+  border-inline-end: unset;
+}
+
+.sidebar-wrp.light {
+  background: #fefefe;
+}
+.sidebar-wrp.dark {
+  background: rgba(20, 20, 20, 0.1);
+}
+
+.light .ant-menu-root,
+.light .ant-layout-sider {
+  background: transparent;
+}
+.dark .ant-menu-root,
+.dark .ant-layout-sider {
+  background: transparent;
+}
+.light .ant-menu-item.ant-menu-item-selected {
+  color: #ffffff;
+  background: linear-gradient(90deg, #f29d58 0%, #e8913a 50%, #d9792d 100%);
+}
+
+.dark .ant-menu-item.ant-menu-item-selected {
+  background: #e8913a;
+  color: #020202;
+}
+
+.ant-layout-header.header-wrp {
+  margin-top: 1%;
+  width: calc(100% - 1%);
+  padding: 0 1vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1vw;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.ant-layout-header.header-wrp.light {
+  background: #fefefe;
+}
+.ant-layout-header.header-wrp.dark {
+  background: rgba(20, 20, 20, 0.1);
+}
+.header-wrp-left {
+  font-size: 1vw;
+  font-weight: bold;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100%;
+}
+.header-wrp-left p {
+  cursor: pointer;
+  display: block;
+  margin: 0;
+  line-height: unset;
+}
+
+.content-wrp {
+  margin-top: 1%;
+  width: calc(100% - 1%);
+  padding: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  /* height:auto !important; */
+  padding-bottom: 20px;
+  scrollbar-width: thin !important;
+  scrollbar-color: #e8913a #f1f1f1 !important; /* Thumb (purple) & track (light gray) */
+  scroll-behavior: smooth;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.content-wrp.light {
+  background: #fefefe;
+}
+.content-wrp.dark {
+  background: rgba(20, 20, 20, 0.1);
+}
+/* ============================= ADMIN LAYOUT  END ======================= */
+
+/* ============================= TABLE CSS START  ============================*/
+:where(.css-dev-only-do-not-override-n8lb50).ant-table-wrapper
+  .ant-table-pagination.ant-pagination {
+  justify-content: center !important;
+}
+:where(.css-dev-only-do-not-override-3jz9jj).ant-table-wrapper
+  .ant-table-pagination-right {
+  justify-content: center;
+}
+:where(.css-dev-only-do-not-override-1ukpvar).ant-table-wrapper
+  .ant-table-pagination-right {
+  justify-content: center !important;
+}
+:where(.css-dev-only-do-not-override-1ek9bks).ant-table-wrapper
+  .ant-table-pagination-right {
+  justify-content: center !important;
+}
+:where(.css-3jz9jj).ant-table-wrapper .ant-table-pagination-right {
+  justify-content: center !important;
+}
+:where(.css-dev-only-do-not-override-65h05o).ant-table-wrapper
+  .ant-table-pagination-right {
+  justify-content: center !important;
+}
+
+/*  ======================= TABLE CSS END  ==================== */
+
+/* ========================== DESCRIPTION CSS START  =================== */
+
+:where(.css-dev-only-do-not-override-n8lb50).ant-descriptions {
+  margin-bottom: 10px;
+}
+/* ========================== DESCRIPTION CSS END  =================== */
+
+/* ================== SCROLL BAR DESIGN START ============================ */
+
+/* Track (background) */
+.sidebar-wrp::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px !important;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+  height: 30px;
+  padding: 2px;
+  border: 2px solid transparent;
+}
+
+.sidebar-wrp::-webkit-scrollbar-thumb,
+.mainbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid #f1f1f1;
+}
+
+.sidebar-wrp::-webkit-scrollbar-thumb:hover,
+.mainbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+.ant-drawer-body {
+  scrollbar-color: #e8913a #f1f1f1 !important; /* Thumb (purple) & track (light gray) */
+  scrollbar-width: thin;
+  scroll-behavior: smooth;
+}
+/* ========================== SCROLL BAR DESIGN END  ====================== */
+
+.empty-box {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 75vh !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
