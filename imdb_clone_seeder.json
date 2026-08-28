@@ -112,7 +112,7 @@
       "name": "Jewel Thief: The Heist Begins",
       "yearOfRelease": 2025,
       "plot": "In this high-octane battle of wits and wills, ingenious con artist Rehan devises a diamond heist while trying to outsmart Rajan, his sadistic adversary.",
-      "poster": "http://localhost:4444/uploads/posters/1746431877094-657911744.jpg",
+      "poster": null,
       "producer": "68183ec7428e942fd9763403",
       "actors": [
         "68183ec7428e942fd97633fa",
@@ -1468,7 +1468,7 @@
       "gender": "Female",
       "dob": "1980-01-01T00:00:00.000Z",
       "bio": "Fetched from TMDB",
-      "image": "http://localhost:4444/uploads/images/1746436017571-594550855.jpg",
+      "image": null,
       "createdAt": "2025-05-05T04:29:58.525Z",
       "updatedAt": "2025-05-05T09:06:57.587Z"
     },
