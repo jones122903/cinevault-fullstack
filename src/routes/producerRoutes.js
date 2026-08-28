@@ -17,6 +17,6 @@ router.put(
   upload.single("image"),
   producerController.updateProducer
 );
-router.delete("/:id", producerController.deleteProducer);
+router.delete("/:id", protect, producerController.deleteProducer);
 
 module.exports = router;
