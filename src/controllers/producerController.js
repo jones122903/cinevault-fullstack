@@ -1,5 +1,26 @@
 const Producer = require("../models/Producer");
 const { sendResponse } = require("../utils/response");
+const cloudinary = require("../../config/cloudinary");
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cinevault/producers",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
 
 exports.getAllProducers = async (req, res) => {
   try {
@@ -18,6 +39,7 @@ exports.getAllProducers = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -29,15 +51,21 @@ exports.getAllProducers = async (req, res) => {
 exports.createProducer = async (req, res) => {
   try {
     const { name, gender, dob, bio } = req.body;
+
     let image = req.body.image;
 
     if (req.file) {
-      image = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/images/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      image = result.secure_url;
     }
 
-    const producer = await Producer.create({ name, gender, dob, bio, image });
+    const producer = await Producer.create({
+      name,
+      gender,
+      dob,
+      bio,
+      image,
+    });
 
     sendResponse(res, {
       statusCode: 201,
@@ -45,7 +73,8 @@ exports.createProducer = async (req, res) => {
       message: "Producer created successfully",
     });
   } catch (err) {
-    console.log(err);
+    console.error("Error creating Producer:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -57,22 +86,26 @@ exports.createProducer = async (req, res) => {
 exports.updateProducer = async (req, res) => {
   try {
     const { name, gender, dob, bio } = req.body;
+
     let image = req.body.image;
 
     if (req.file) {
-      image = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/images/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      image = result.secure_url;
     }
-    
+
     const dataToUpdate = {};
+
     if (name) dataToUpdate.name = name;
     if (gender) dataToUpdate.gender = gender;
     if (dob) dataToUpdate.dob = dob;
     if (bio) dataToUpdate.bio = bio;
     if (image) dataToUpdate.image = image;
 
-    const updatedProducer = await Producer.findByIdAndUpdate(req.params.id, dataToUpdate);
+    const updatedProducer = await Producer.findByIdAndUpdate(
+      req.params.id,
+      dataToUpdate
+    );
 
     if (!updatedProducer) {
       return sendResponse(res, {
@@ -88,6 +121,7 @@ exports.updateProducer = async (req, res) => {
     });
   } catch (err) {
     console.error("Error updating Producer:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -109,11 +143,14 @@ exports.deleteProducer = async (req, res) => {
     }
 
     sendResponse(res, {
-      data: { producerId: req.params.id },
+      data: {
+        producerId: req.params.id,
+      },
       message: "Producer deleted successfully",
     });
   } catch (err) {
     console.error("Error deleting Producer:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",

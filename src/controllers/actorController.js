@@ -1,5 +1,26 @@
 const Actor = require("../models/Actor");
 const { sendResponse } = require("../utils/response");
+const cloudinary = require("../../config/cloudinary");
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cinevault/actors",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
 
 exports.getAllActors = async (req, res) => {
   try {
@@ -7,7 +28,7 @@ exports.getAllActors = async (req, res) => {
     const filter = {};
 
     if (name) {
-      filter.name = name; // Model will handle like match
+      filter.name = name;
     }
 
     const actors = await Actor.find(filter);
@@ -18,6 +39,7 @@ exports.getAllActors = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -29,15 +51,21 @@ exports.getAllActors = async (req, res) => {
 exports.createActor = async (req, res) => {
   try {
     const { name, gender, dob, bio } = req.body;
+
     let image = req.body.image;
 
     if (req.file) {
-      image = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/images/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      image = result.secure_url;
     }
 
-    const actor = await Actor.create({ name, gender, dob, bio, image });
+    const actor = await Actor.create({
+      name,
+      gender,
+      dob,
+      bio,
+      image,
+    });
 
     sendResponse(res, {
       statusCode: 201,
@@ -45,7 +73,8 @@ exports.createActor = async (req, res) => {
       message: "Actor created successfully",
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error creating actor:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -58,22 +87,26 @@ exports.updateActor = async (req, res) => {
   try {
     const actorId = req.params.id;
     const { name, gender, dob, bio } = req.body;
+
     let image = req.body.image;
 
     if (req.file) {
-      image = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/images/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      image = result.secure_url;
     }
 
     const dataToUpdate = {};
+
     if (name) dataToUpdate.name = name;
     if (gender) dataToUpdate.gender = gender;
     if (dob) dataToUpdate.dob = dob;
     if (bio) dataToUpdate.bio = bio;
     if (image) dataToUpdate.image = image;
 
-    const updatedActor = await Actor.findByIdAndUpdate(actorId, dataToUpdate);
+    const updatedActor = await Actor.findByIdAndUpdate(
+      actorId,
+      dataToUpdate
+    );
 
     if (!updatedActor) {
       return sendResponse(res, {
@@ -89,10 +122,11 @@ exports.updateActor = async (req, res) => {
     });
   } catch (err) {
     console.error("Error updating actor:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
-      message: "Failed to update actor",
+      message: err.message,
     });
   }
 };
@@ -117,6 +151,7 @@ exports.deleteActor = async (req, res) => {
     });
   } catch (err) {
     console.error("Error deleting actor:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",

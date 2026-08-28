@@ -1,20 +1,47 @@
 const Movie = require("../models/Movie");
 const { sendResponse } = require("../utils/response");
+const cloudinary = require("../../config/cloudinary");
+
+const uploadToCloudinary = (fileBuffer) => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: "cinevault/movies",
+        resource_type: "image",
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
 
 exports.getAllMovies = async (req, res) => {
   try {
     const { name, page = 1, limit = 10 } = req.body;
+
     const filter = {};
+
     if (name) {
       filter.name = name;
     }
 
-    const offset = page * limit;
+    const offset = (page - 1) * limit;
 
     const movies = await Movie.find(filter, limit, offset);
 
     const db = require("../../database/db");
-    const totalCount = await db("movies").count("* as count").first();
+
+    const totalCount = await db("movies")
+      .whereNull("deleted_at")
+      .count("* as count")
+      .first();
 
     sendResponse(res, {
       data: movies,
@@ -23,6 +50,7 @@ exports.getAllMovies = async (req, res) => {
     });
   } catch (err) {
     console.error(err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -48,7 +76,8 @@ exports.getMovieById = async (req, res) => {
       message: "Movie fetched successfully",
     });
   } catch (err) {
-    console.log(err);
+    console.error(err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -64,13 +93,13 @@ exports.createMovie = async (req, res) => {
     let posterUrl = req.body.poster;
 
     if (req.file) {
-      posterUrl = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/images/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      posterUrl = result.secure_url;
     }
 
     if (name && name.length <= 30) {
       const existing = await Movie.find({ name });
+
       if (existing.length > 0) {
         return sendResponse(res, {
           statusCode: 400,
@@ -95,7 +124,8 @@ exports.createMovie = async (req, res) => {
       message: "Movie created successfully",
     });
   } catch (err) {
-    console.log(err);
+    console.error("Error creating Movie:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -111,22 +141,39 @@ exports.updateMovie = async (req, res) => {
     let posterUrl = req.body.poster;
 
     if (req.file) {
-      posterUrl = `${req.protocol}://${
-        req.get("X-Forwarded-Host") || req.get("Host")
-      }/uploads/posters/${req.file.filename}`;
+      const result = await uploadToCloudinary(req.file.buffer);
+      posterUrl = result.secure_url;
     }
 
     const dataToUpdate = {};
-    if (name !== undefined) dataToUpdate.name = name;
-    if (yearOfRelease !== undefined) dataToUpdate.yearOfRelease = yearOfRelease;
-    // if (plot !== undefined) dataToUpdate.plot = plot;
-    if (posterUrl !== undefined) dataToUpdate.poster = posterUrl;
-    if (producer !== undefined) dataToUpdate.producer = producer;
-    if (actors !== undefined) dataToUpdate.actors = actors;
+
+    if (name !== undefined) {
+      dataToUpdate.name = name;
+    }
+
+    if (yearOfRelease !== undefined) {
+      dataToUpdate.yearOfRelease = yearOfRelease;
+    }
+
+    if (plot !== undefined) {
+      dataToUpdate.plot = plot;
+    }
+
+    if (posterUrl !== undefined) {
+      dataToUpdate.poster = posterUrl;
+    }
+
+    if (producer !== undefined) {
+      dataToUpdate.producer = producer;
+    }
+
+    if (actors !== undefined) {
+      dataToUpdate.actors = actors;
+    }
 
     const updatedMovie = await Movie.findByIdAndUpdate(
       req.params.id,
-      dataToUpdate,
+      dataToUpdate
     );
 
     if (!updatedMovie) {
@@ -142,7 +189,8 @@ exports.updateMovie = async (req, res) => {
       message: "Movie updated successfully",
     });
   } catch (err) {
-    console.log(err);
+    console.error("Error updating Movie:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",
@@ -171,6 +219,7 @@ exports.deleteMovie = async (req, res) => {
     });
   } catch (err) {
     console.error("Error deleting Movie:", err);
+
     sendResponse(res, {
       statusCode: 500,
       status: "error",

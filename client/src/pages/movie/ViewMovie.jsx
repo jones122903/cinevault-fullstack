@@ -23,7 +23,8 @@ const ViewMovie = () => {
   useEffect(() => {
     onLoad();
   }, [id, movies]);
-
+console.log("Selected movie:", movie);
+console.log("Poster URL:", movie?.poster);
   return (
     <div className="viewmovie-overlay-wrapper">
       <div
