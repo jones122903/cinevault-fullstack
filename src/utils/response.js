@@ -2,11 +2,24 @@
 
 exports.sendResponse = (
   res,
-  { statusCode = 200, status = "success", data = null, message = "" }
+  {
+    statusCode = 200,
+    status = "success",
+    data = null,
+    message = "",
+    total,
+  }
 ) => {
-  res.status(statusCode).json({
+  const response = {
     status,
     data,
     message,
-  });
+  };
+
+  // Include total only when it was provided
+  if (total !== undefined) {
+    response.total = Number(total);
+  }
+
+  res.status(statusCode).json(response);
 };

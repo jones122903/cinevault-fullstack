@@ -10,7 +10,9 @@ const MovieCard = ({ data, setShowConfirm, setTargetMovie }) => {
     <div key={data.id} className="card">
       <img src={data.poster || no_flag} alt="Poster" className="card-poster" />
       <div className="card-content">
-        <h3 className="card-title">{data.name || "-"}</h3>
+        <h3 className="card-title">
+  {data.name || "-"}
+</h3>
         <p className="card-text">
           <strong>Actors:</strong>{" "}
           {data.actors?.map((actor) => actor.name).join(", ") || "-"}

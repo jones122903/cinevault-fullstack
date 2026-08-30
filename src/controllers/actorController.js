@@ -53,10 +53,13 @@ exports.createActor = async (req, res) => {
     const { name, gender, dob, bio } = req.body;
 
     let image = req.body.image;
+    let image_public_id = null;
 
     if (req.file) {
       const result = await uploadToCloudinary(req.file.buffer);
+
       image = result.secure_url;
+      image_public_id = result.public_id;
     }
 
     const actor = await Actor.create({
@@ -65,6 +68,7 @@ exports.createActor = async (req, res) => {
       dob,
       bio,
       image,
+      image_public_id,
     });
 
     sendResponse(res, {
@@ -88,11 +92,14 @@ exports.updateActor = async (req, res) => {
     const actorId = req.params.id;
     const { name, gender, dob, bio } = req.body;
 
-    let image = req.body.image;
+    const existingActor = await Actor.findById(actorId);
 
-    if (req.file) {
-      const result = await uploadToCloudinary(req.file.buffer);
-      image = result.secure_url;
+    if (!existingActor) {
+      return sendResponse(res, {
+        statusCode: 404,
+        status: "error",
+        message: "Actor not found",
+      });
     }
 
     const dataToUpdate = {};
@@ -101,20 +108,22 @@ exports.updateActor = async (req, res) => {
     if (gender) dataToUpdate.gender = gender;
     if (dob) dataToUpdate.dob = dob;
     if (bio) dataToUpdate.bio = bio;
-    if (image) dataToUpdate.image = image;
+
+    if (req.file) {
+      const result = await uploadToCloudinary(req.file.buffer);
+
+      if (existingActor.image_public_id) {
+        await cloudinary.uploader.destroy(existingActor.image_public_id);
+      }
+
+      dataToUpdate.image = result.secure_url;
+      dataToUpdate.image_public_id = result.public_id;
+    }
 
     const updatedActor = await Actor.findByIdAndUpdate(
       actorId,
       dataToUpdate
     );
-
-    if (!updatedActor) {
-      return sendResponse(res, {
-        statusCode: 404,
-        status: "error",
-        message: "Actor not found",
-      });
-    }
 
     sendResponse(res, {
       data: updatedActor,
@@ -135,15 +144,23 @@ exports.deleteActor = async (req, res) => {
   try {
     const actorId = req.params.id;
 
-    const deletedActor = await Actor.findByIdAndDelete(actorId);
+    const actor = await Actor.findById(actorId);
 
-    if (!deletedActor) {
+    if (!actor) {
       return sendResponse(res, {
         statusCode: 404,
         status: "error",
         message: "Actor not found",
       });
     }
+
+    // Delete image from Cloudinary
+    if (actor.image_public_id) {
+      await cloudinary.uploader.destroy(actor.image_public_id);
+    }
+
+    // Delete actor from database
+    await Actor.findByIdAndDelete(actorId);
 
     sendResponse(res, {
       data: { actorId },
