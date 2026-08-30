@@ -8,12 +8,13 @@ export const RegisterUser = async (data) => {
 
 // ================== producers  page start ================
 export const GetProducers = async (data) => {
-  const payload = data ? { ...data, name: data.name, name: undefined } : data;
-  return await requests.post(`api/producers/get-all`, payload);
+  return await requests.post(`api/producers/get-all`, data);
 };
+
 export const CreateProducer = async (data) => {
   return await requests.post(`api/producers`, data);
 };
+
 export const UpdateProducer = async (id, data) => {
   return await requests.put(`api/producers/${id}`, data);
 };
