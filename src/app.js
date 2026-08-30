@@ -20,6 +20,14 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// Root API status route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "CineVault API is running",
+  });
+});
+
 // Use Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/actors", actorRoutes);
