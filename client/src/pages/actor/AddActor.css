@@ -1,112 +1,331 @@
-.overlayWrapper {
+/* =========================
+   Main Overlay
+========================= */
+
+.add-movie-overlay {
   position: fixed;
+
   inset: 0;
+
+  background-color:
+    rgba(0, 0, 0, 0.6);
+
   display: flex;
+
   justify-content: center;
+
   align-items: center;
-  z-index: 1000;
+
+  z-index: 5000;
+
+  padding: 20px;
+
+  box-sizing: border-box;
 }
 
-.overlayBackground {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  z-index: 1;
-}
+/* =========================
+   Drawer / Modal
+========================= */
 
-.overlayContent {
-  background-color: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  width: 80%;
-  max-width: 900px;
-  max-height: 90vh;
-  overflow-y: auto;
-  z-index: 2;
+.add-movie-drawer {
   position: relative;
+
+  background-color: #fff;
+
+  width: 600px;
+
+  max-width: 900px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  padding: 24px;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  box-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.3);
 }
 
-.header {
+/* =========================
+   Header
+========================= */
+
+.add-movie-header {
   display: flex;
-  justify-content: space-between;
+
+  justify-content:
+    space-between;
+
   align-items: center;
+
   margin-bottom: 20px;
 }
 
-.closeBtn {
-  font-size: 24px;
+.add-movie-header h2 {
+  margin: 0;
+}
+
+.add-movie-closeBtn {
+  font-size: 28px;
+
+  line-height: 1;
+
   background: none;
+
   border: none;
+
   cursor: pointer;
+
+  padding: 4px 8px;
 }
 
-.body {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 24px;
-}
+/* =========================
+   Main Card
+========================= */
 
-.imageSection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+.add-movie-card {
+  border: 1px solid #ddd;
 
-.fileInput {
-  margin-bottom: 12px;
-}
-
-.imagePreview {
-  width: 180px;
-  height: 180px;
   border-radius: 8px;
-  object-fit: cover;
-  margin-bottom: 12px;
+
+  padding: 18px;
+
+  background-color: #fafafa;
+
+  box-sizing: border-box;
 }
 
-.removeBtn {
-  background-color: #ff4d4f;
-  color: #fff;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-}
+/* =========================
+   Form Groups
+========================= */
 
-.formSection {
-  display: flex;
-  flex-direction: column;
-}
-
-.formRow {
+.add-movie-formGroup {
   margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
 }
 
-.label {
+.add-movie-formGroup label {
+  display: block;
+
   margin-bottom: 6px;
+
   font-weight: 600;
+
   color: #444;
 }
 
-.input,
-.textarea {
-  padding: 8px;
-  border: 1px solid #ccc;
+.add-movie-input,
+.add-movie-textarea,
+.add-movie-uploadInput {
+  width: 100%;
+
+  padding: 9px;
+
+  border: 1px solid #ddd;
+
   border-radius: 4px;
+
+  box-sizing: border-box;
+
+  font: inherit;
 }
 
-.textarea {
+.add-movie-textarea {
   resize: vertical;
 }
 
-.submitBtn {
+/* =========================
+   Save Button
+========================= */
+
+.add-movie-saveButton {
   background-color: #1890ff;
-  color: #fff;
-  padding: 10px 15px;
+
   border: none;
-  border-radius: 4px;
+
+  color: #fff;
+
+  padding: 10px 20px;
+
   cursor: pointer;
-  align-self: flex-start;
+
+  border-radius: 4px;
+}
+
+.add-movie-saveButton:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+}
+
+/* =========================
+   Validation
+========================= */
+
+.add-movie-error {
+  color: red;
+
+  font-size: 12px;
+
+  margin-top: 4px;
+
+  display: block;
+}
+
+/* =========================
+   Actor Tags
+========================= */
+
+.add-movie-tagInputWrapper {
+  position: relative;
+}
+
+.add-movie-tagContainer {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+
+  gap: 6px;
+
+  border: 1px solid #ccc;
+
+  padding: 6px;
+
+  border-radius: 4px;
+
+  min-height: 40px;
+
+  background-color: #fff;
+
+  cursor: text;
+}
+
+.add-movie-tag {
+  background-color: #1890ff;
+
+  color: #fff;
+
+  padding: 4px 8px;
+
+  border-radius: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 4px;
+
+  font-size: 12px;
+}
+
+.add-movie-tagClose {
+  background: none;
+
+  border: none;
+
+  color: #fff;
+
+  cursor: pointer;
+
+  font-size: 14px;
+
+  margin-left: 4px;
+}
+
+.add-movie-tagInput {
+  border: none;
+
+  outline: none;
+
+  flex-grow: 1;
+
+  min-width: 120px;
+
+  background: transparent;
+}
+
+/* =========================
+   Actor Dropdown
+========================= */
+
+.add-movie-dropdown {
+  position: absolute;
+
+  top: calc(100% + 4px);
+
+  left: 0;
+
+  right: 0;
+
+  background-color: #fff;
+
+  border: 1px solid #ddd;
+
+  border-radius: 4px;
+
+  max-height: 180px;
+
+  overflow-y: auto;
+
+  z-index: 5100;
+
+  box-shadow:
+    0 4px 12px
+    rgba(0, 0, 0, 0.15);
+}
+
+.add-movie-dropdownItem {
+  padding: 8px;
+
+  cursor: pointer;
+}
+
+.add-movie-dropdownItem:hover {
+  background-color: #f1f1f1;
+}
+
+/* =========================
+   Remove Poster
+========================= */
+
+.add-movie-removeBtn {
+  background-color: #ff4d4f;
+
+  color: #fff;
+
+  border: none;
+
+  padding: 6px 12px;
+
+  border-radius: 4px;
+
+  cursor: pointer;
+
+  margin-top: 10px;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 700px) {
+  .add-movie-overlay {
+    padding: 10px;
+  }
+
+  .add-movie-drawer {
+    width: 100%;
+
+    padding: 18px;
+  }
 }

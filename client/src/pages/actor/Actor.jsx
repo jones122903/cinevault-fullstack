@@ -16,46 +16,37 @@ const Actors = ({ viewState, editState, addState }) => {
   const [filter, setFilter] = useState({});
   const [showConfirm, setShowConfirm] = useState(false);
   const [targetActor, setTarget] = useState(null);
+
   const {
     TokenRefreshedModal,
     fetchActors,
-    navigate,
     updateActors,
     showToast,
   } = Common();
-  const { actors } = useSelector(selectActor);
+
+  const { actors = [] } = useSelector(selectActor);
 
   useEffect(() => {
-    if (!actors.length) fetchActors({ setLoading });
+    if (actors.length === 0) {
+      fetchActors({ setLoading });
+    }
   }, []);
 
-  const filteredActors = actors.filter((actor) =>
-    actor.name?.toLowerCase().includes(filter.name?.toLowerCase() || ""),
-  );
-
-  const handleDelete = async (id) => {
-    try {
-      const res = await DeleteActor(id);
-      if (res.status == "success") {
-        const list = actors.filter((d) => d.id !== id);
-        updateActors(list);
-        showToast({
-          message: res.message || "updated successfully",
-          type: "success",
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      showToast({
-        message: err?.response?.data?.message || "Something went wrong",
-        type: "error",
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setFilter({
+        name: searchText,
       });
-      if (err?.response?.data?.message == "Token refreshed") {
-        TokenRefreshedModal();
-      }
-      console.log(err?.response?.data?.message || "Something went wrong.");
-    }
-  };
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
+  const filteredActors = actors.filter((actor) =>
+    actor.name
+      ?.toLowerCase()
+      .includes(filter.name?.toLowerCase() || "")
+  );
 
   const handleSearch = () => {
     setFilter({
@@ -63,11 +54,42 @@ const Actors = ({ viewState, editState, addState }) => {
     });
   };
 
-  useEffect(() => {
-    setTimeout(() => {
-      handleSearch();
-    }, 1000);
-  }, [searchText]);
+  const handleDelete = async (id) => {
+    try {
+      const res = await DeleteActor(id);
+
+      if (res.status === "success") {
+        const list = actors.filter(
+          (actor) => actor.id !== id
+        );
+
+        updateActors(list);
+
+        showToast({
+          message:
+            res.message ||
+            "Actor deleted successfully",
+          type: "success",
+        });
+      }
+    } catch (err) {
+      console.error(err);
+
+      if (
+        err?.response?.data?.message ===
+        "Token refreshed"
+      ) {
+        TokenRefreshedModal();
+      }
+
+      showToast({
+        message:
+          err?.response?.data?.message ||
+          "Something went wrong",
+        type: "error",
+      });
+    }
+  };
 
   return (
     <div>
@@ -75,10 +97,10 @@ const Actors = ({ viewState, editState, addState }) => {
         searchText={searchText}
         setSearchText={setSearchText}
         handleSearch={handleSearch}
-        path={"/actors/add"}
+        path="/actors/add"
       />
 
-      {loading ? (
+      {loading && actors.length === 0 ? (
         <div>Loading...</div>
       ) : actors.length > 0 ? (
         <div className="cardContainer">
@@ -86,14 +108,19 @@ const Actors = ({ viewState, editState, addState }) => {
             <Card
               key={item.id}
               data={item}
-              path={"actors"}
+              path="actors"
               setShowConfirm={setShowConfirm}
               setTarget={setTarget}
             />
           ))}
         </div>
       ) : (
-        <div style={{ textAlign: "center", padding: "16px" }}>
+        <div
+          style={{
+            textAlign: "center",
+            padding: "16px",
+          }}
+        >
           No data available
         </div>
       )}
@@ -105,10 +132,12 @@ const Actors = ({ viewState, editState, addState }) => {
               Are you sure you want to delete{" "}
               <strong>{targetActor.name}</strong>?
             </p>
+
             <div className="modalActions">
               <button
-                onClick={() => {
-                  handleDelete(targetActor.id);
+                onClick={async () => {
+                  await handleDelete(targetActor.id);
+
                   setShowConfirm(false);
                   setTarget(null);
                 }}
@@ -116,6 +145,7 @@ const Actors = ({ viewState, editState, addState }) => {
               >
                 Yes
               </button>
+
               <button
                 onClick={() => {
                   setShowConfirm(false);
@@ -129,8 +159,11 @@ const Actors = ({ viewState, editState, addState }) => {
           </div>
         </div>
       )}
+
       {viewState && <ViewActorPage />}
+
       {editState && <EditActor />}
+
       {addState && <AddActor />}
     </div>
   );

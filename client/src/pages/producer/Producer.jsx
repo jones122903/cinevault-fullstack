@@ -1,13 +1,26 @@
-import { useEffect, useState } from "react";
-import { DeleteProducer } from "../../services/Index";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  DeleteProducer,
+} from "../../services/Index";
+
 import Common from "../../common/common";
+
 import { useSelector } from "react-redux";
-import { selectProducer } from "../../features/producer/producerSlice";
+
+import {
+  selectProducer,
+} from "../../features/producer/producerSlice";
+
 import SearchBar from "../../components/SearchBar";
 import ViewProducerPage from "./ViewProducer";
 import EditProducer from "./EditProducer";
 import AddProducer from "./AddProducer";
 import ProfileCard from "../../components/ProfileCard";
+
 import "./Producers.css";
 
 const Producers = ({
@@ -15,11 +28,18 @@ const Producers = ({
   editState,
   addState,
 }) => {
-  const [searchText, setSearchText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState({});
+  const [searchText, setSearchText] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [filter, setFilter] =
+    useState({});
+
   const [showConfirm, setShowConfirm] =
     useState(false);
+
   const [targetProducer, setTarget] =
     useState(null);
 
@@ -33,22 +53,24 @@ const Producers = ({
   const { producers = [] } =
     useSelector(selectProducer);
 
-  // =========================================
-  // Fetch producers once when page loads
-  // =========================================
+  // Fetch only when Redux has no producer data.
   useEffect(() => {
-    fetchProducers({
-      setLoading,
-    });
+    if (producers.length === 0) {
+      fetchProducers({
+        setLoading,
+      });
+    }
   }, []);
 
-  // =========================================
-  // Search
-  // =========================================
   useEffect(() => {
-    setFilter({
-      name: searchText,
-    });
+    const timer = setTimeout(() => {
+      setFilter({
+        name: searchText,
+      });
+    }, 300);
+
+    return () =>
+      clearTimeout(timer);
   }, [searchText]);
 
   const filteredProducers =
@@ -56,22 +78,22 @@ const Producers = ({
       producer.name
         ?.toLowerCase()
         .includes(
-          filter.name?.toLowerCase() || ""
+          filter.name
+            ?.toLowerCase() || ""
         )
     );
 
-  // =========================================
-  // Delete producer
-  // =========================================
   const handleDelete = async (id) => {
     try {
-      const res = await DeleteProducer(id);
+      const res =
+        await DeleteProducer(id);
 
       if (res.status === "success") {
-        const list = producers.filter(
-          (producer) =>
-            producer.id !== id
-        );
+        const list =
+          producers.filter(
+            (producer) =>
+              producer.id !== id
+          );
 
         updateProducers(list);
 
@@ -86,7 +108,8 @@ const Producers = ({
       console.error(err);
 
       if (
-        err?.response?.data?.message ===
+        err?.response?.data
+          ?.message ===
         "Token refreshed"
       ) {
         TokenRefreshedModal();
@@ -94,16 +117,14 @@ const Producers = ({
 
       showToast({
         message:
-          err?.response?.data?.message ||
+          err?.response?.data
+            ?.message ||
           "Something went wrong",
         type: "error",
       });
     }
   };
 
-  // =========================================
-  // Search button
-  // =========================================
   const handleSearch = () => {
     setFilter({
       name: searchText,
@@ -119,7 +140,8 @@ const Producers = ({
         path="/producers/add"
       />
 
-      {loading ? (
+      {loading &&
+      producers.length === 0 ? (
         <div>Loading...</div>
       ) : producers.length > 0 ? (
         <div className="cardContainer">

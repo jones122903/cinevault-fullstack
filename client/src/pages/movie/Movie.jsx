@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-
-import {
-  DeleteMovie,
-} from "../../services/Index";
+import { DeleteMovie } from "../../services/Index";
 
 import ViewMovie from "./ViewMovie";
 import EditMovie from "./EditMovie";
@@ -23,35 +20,32 @@ const Movies = ({
   editState,
   addState,
 }) => {
-  // =========================
-  // Search
-  // =========================
   const [searchText, setSearchText] =
     useState("");
 
   const [searchName, setSearchName] =
     useState("");
 
-  // =========================
-  // Pagination
-  // =========================
-  const [page, setPage] = useState(1);
+  const [page, setPage] =
+    useState(1);
 
   const limit = 10;
 
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] =
+    useState(0);
 
-  // =========================
-  // Other State
-  // =========================
   const [loading, setLoading] =
     useState(false);
 
-  const [showConfirm, setShowConfirm] =
-    useState(false);
+  const [
+    showConfirm,
+    setShowConfirm,
+  ] = useState(false);
 
-  const [targetMovie, setTargetMovie] =
-    useState(null);
+  const [
+    targetMovie,
+    setTargetMovie,
+  ] = useState(null);
 
   const { movies = [] } =
     useSelector(selectMovie);
@@ -63,81 +57,95 @@ const Movies = ({
   } = Common();
 
   const userRole =
-    localStorage.getItem("userRole") || "guest";
+    localStorage.getItem(
+      "userRole"
+    ) || "guest";
 
-  // =========================
-  // Calculate Pages
-  // =========================
   const totalPages = Math.max(
     1,
     Math.ceil(total / limit)
   );
 
-  // =========================
-  // Fetch Movies
-  // =========================
   const loadMovies = async (
     currentPage = page,
     currentSearch = searchName
   ) => {
-    const result = await fetchMovies({
-      page: currentPage,
-      limit,
-      name: currentSearch,
-      setLoading,
-    });
+    const shouldShowLoading =
+      movies.length === 0;
+
+    const result =
+      await fetchMovies({
+        page: currentPage,
+        limit,
+        name: currentSearch,
+
+        setLoading:
+          shouldShowLoading
+            ? setLoading
+            : undefined,
+      });
 
     if (result) {
       setTotal(result.total);
     }
   };
 
-  // Fetch whenever page or search changes
   useEffect(() => {
-    loadMovies(page, searchName);
-  }, [page, searchName]);
-
-  // =========================
-  // Search
-  // =========================
-  const handleSearch = () => {
     /*
-      searchText = what user typed
-      searchName = search currently being sent
-                   to backend
+      Do not refetch the list simply because
+      View/Edit/Add is currently open.
     */
+    if (
+      viewState ||
+      editState ||
+      addState
+    ) {
+      return;
+    }
+
+    loadMovies(
+      page,
+      searchName
+    );
+  }, [
+    page,
+    searchName,
+    viewState,
+    editState,
+    addState,
+  ]);
+
+  const handleSearch = () => {
+    const value =
+      searchText.trim();
 
     if (page !== 1) {
       setPage(1);
     }
 
-    setSearchName(searchText.trim());
+    setSearchName(value);
 
-    /*
-      If already on page 1 and searching
-      same value again, manually reload.
-    */
     if (
       page === 1 &&
-      searchName === searchText.trim()
+      searchName === value
     ) {
       loadMovies(
         1,
-        searchText.trim()
+        value
       );
     }
   };
 
-  // =========================
-  // Delete Movie
-  // =========================
   const handleDelete = async (id) => {
     try {
       setLoading(true);
 
-      const res = await DeleteMovie(id);
+      const res =
+        await DeleteMovie(id);
 
-      if (res.status === "success") {
+      if (
+        res.status === "success"
+      ) {
         showToast({
           message:
             res.message ||
@@ -145,35 +153,30 @@ const Movies = ({
           type: "success",
         });
 
-        /*
-          Example:
+        const newTotal =
+          Math.max(
+            total - 1,
+            0
+          );
 
-          Page 10 contains only 1 movie.
-          If that movie is deleted,
-          page 10 no longer exists.
-
-          Move back to page 9.
-        */
-
-        const newTotal = Math.max(
-          total - 1,
-          0
-        );
-
-        const newTotalPages = Math.max(
-          1,
-          Math.ceil(newTotal / limit)
-        );
+        const newTotalPages =
+          Math.max(
+            1,
+            Math.ceil(
+              newTotal / limit
+            )
+          );
 
         setTotal(newTotal);
 
-        if (page > newTotalPages) {
-          setPage(newTotalPages);
+        if (
+          page >
+          newTotalPages
+        ) {
+          setPage(
+            newTotalPages
+          );
         } else {
-          /*
-            Reload current page so another
-            movie fills the deleted position.
-          */
           await loadMovies(
             page,
             searchName
@@ -185,13 +188,15 @@ const Movies = ({
 
       showToast({
         message:
-          err?.response?.data?.message ||
+          err?.response?.data
+            ?.message ||
           "Something went wrong",
         type: "error",
       });
 
       if (
-        err?.response?.data?.message ===
+        err?.response?.data
+          ?.message ===
         "Token refreshed"
       ) {
         TokenRefreshedModal();
@@ -201,18 +206,15 @@ const Movies = ({
     }
   };
 
-  // =========================
-  // Previous Page
-  // =========================
   const handlePreviousPage = () => {
     setPage((currentPage) =>
-      Math.max(1, currentPage - 1)
+      Math.max(
+        1,
+        currentPage - 1
+      )
     );
   };
 
-  // =========================
-  // Next Page
-  // =========================
   const handleNextPage = () => {
     setPage((currentPage) =>
       Math.min(
@@ -224,10 +226,6 @@ const Movies = ({
 
   return (
     <div>
-      {/* =====================
-          Search Bar
-      ====================== */}
-
       <SearchBar
         searchText={searchText}
         setSearchText={setSearchText}
@@ -235,78 +233,69 @@ const Movies = ({
         path="/movies/add"
       />
 
-      {/* =====================
-          Movie Modals
-      ====================== */}
-
-      {viewState && <ViewMovie />}
-
-      {editState && <EditMovie />}
-
-      {addState && <AddMovie />}
-
-      {/* =====================
-          Loading
-      ====================== */}
-
-      {loading ? (
+      {loading &&
+      movies.length === 0 ? (
         <div className="loading-text">
           Loading...
         </div>
       ) : movies.length > 0 ? (
         <>
-          {/* =====================
-              Movie Cards
-          ====================== */}
-
           <div className="card-container">
-            {movies.map((movie) => (
-              <div
-                key={movie.id}
-                style={{
-                  position: "relative",
-                }}
-              >
-                <MovieCard
-                  data={movie}
-                  setShowConfirm={
-                    setShowConfirm
-                  }
-                  setTargetMovie={
-                    setTargetMovie
-                  }
-                />
-
-                {userRole !== "admin" && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      right: 0,
-                      width: "40px",
-                      height: "40px",
-                      zIndex: 10,
-                      background: "white",
-                      opacity: 0.8,
-                    }}
+            {movies.map(
+              (movie) => (
+                <div
+                  key={movie.id}
+                  style={{
+                    position:
+                      "relative",
+                  }}
+                >
+                  <MovieCard
+                    data={movie}
+                    setShowConfirm={
+                      setShowConfirm
+                    }
+                    setTargetMovie={
+                      setTargetMovie
+                    }
                   />
-                )}
-              </div>
-            ))}
-          </div>
 
-          {/* =====================
-              Pagination
-          ====================== */}
+                  {userRole !==
+                    "admin" && (
+                    <div
+                      style={{
+                        position:
+                          "absolute",
+                        top: 0,
+                        right: 0,
+                        width:
+                          "40px",
+                        height:
+                          "40px",
+                        zIndex: 10,
+                        background:
+                          "white",
+                        opacity: 0.8,
+                      }}
+                    />
+                  )}
+                </div>
+              )
+            )}
+          </div>
 
           <div
             style={{
               display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              justifyContent:
+                "center",
+              alignItems:
+                "center",
               gap: "20px",
-              marginTop: "30px",
-              marginBottom: "30px",
+              marginTop:
+                "30px",
+              marginBottom:
+                "30px",
             }}
           >
             <button
@@ -314,7 +303,10 @@ const Movies = ({
               onClick={
                 handlePreviousPage
               }
-              disabled={page === 1}
+              disabled={
+                page === 1 ||
+                loading
+              }
               className="primary-btn"
             >
               Previous
@@ -327,9 +319,13 @@ const Movies = ({
 
             <button
               type="button"
-              onClick={handleNextPage}
+              onClick={
+                handleNextPage
+              }
               disabled={
-                page >= totalPages
+                page >=
+                  totalPages ||
+                loading
               }
               className="primary-btn"
             >
@@ -337,38 +333,39 @@ const Movies = ({
             </button>
           </div>
 
-          {/* Movie Count */}
-
           <div
             style={{
-              textAlign: "center",
-              marginBottom: "30px",
+              textAlign:
+                "center",
+              marginBottom:
+                "30px",
             }}
           >
-            Total movies: {total}
+            Total movies:{" "}
+            {total}
           </div>
-
-          {/* =====================
-              Delete Confirmation
-          ====================== */}
 
           {showConfirm &&
             targetMovie && (
               <div className="modal-overlay">
                 <div className="modal-box">
                   <p>
-                    Are you sure you want
-                    to delete{" "}
+                    Are you sure you
+                    want to delete{" "}
                     <strong>
-                      {targetMovie.name}
+                      {
+                        targetMovie.name
+                      }
                     </strong>
                     ?
                   </p>
 
                   <div
                     style={{
-                      marginTop: "12px",
-                      display: "flex",
+                      marginTop:
+                        "12px",
+                      display:
+                        "flex",
                       gap: "12px",
                       justifyContent:
                         "center",
@@ -416,6 +413,18 @@ const Movies = ({
         <div className="no-data">
           No data available
         </div>
+      )}
+
+      {viewState && (
+        <ViewMovie />
+      )}
+
+      {editState && (
+        <EditMovie />
+      )}
+
+      {addState && (
+        <AddMovie />
       )}
     </div>
   );

@@ -9,36 +9,61 @@ import "./ViewActor.css";
 
 const ViewActor = () => {
   const { id } = useParams();
+
   const { actors = [] } = useSelector(selectActor);
+
   const { fetchActors, navigate } = Common();
+
   const [actor, setActor] = useState(null);
 
-  const onLoad = async () => {
-    const data = actors.find((d) => d.id == id);
-    if (!data) await fetchActors();
-    if (data) {
-      setActor(actors.find((a) => a.id == id));
-    }
-  };
-
+  // Fetch actors only when Redux has no data
   useEffect(() => {
-    onLoad();
+    if (actors.length === 0) {
+      fetchActors();
+    }
+  }, []);
+
+  // Find actor directly from Redux
+  useEffect(() => {
+    const selectedActor = actors.find(
+      (actor) => actor.id == id
+    );
+
+    if (selectedActor) {
+      setActor(selectedActor);
+    }
   }, [id, actors]);
+
+  const handleClose = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="view-actor-overlay-wrapper">
       <div
         className="view-actor-overlay-background"
-        onClick={() => navigate(-1)}
+        onClick={handleClose}
       />
+
       <div className="view-actor-overlay-content">
         <div className="view-actor-header-row">
-          <button onClick={() => navigate(-1)} className="view-actor-close-btn">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="view-actor-close-btn"
+          >
             ×
           </button>
-          <h1 className="view-actor-page-title">Actor Details</h1>
-          <h1 className="view-actor-page-title"> </h1>
+
+          <h1 className="view-actor-page-title">
+            Actor Details
+          </h1>
+
+          <h1 className="view-actor-page-title">
+            {" "}
+          </h1>
         </div>
+
         <div className="view-actor-content">
           <div className="view-actor-image-section">
             <img
@@ -47,23 +72,47 @@ const ViewActor = () => {
               className="view-actor-image"
             />
           </div>
+
           <div className="view-actor-info-section">
             <div className="view-actor-info-row">
-              <span className="view-actor-label">Name:</span>
-              <span className="view-actor-value">{actor?.name || "N/A"}</span>
-            </div>
-            <div className="view-actor-info-row">
-              <span className="view-actor-label">Gender:</span>
-              <span className="view-actor-value">{actor?.gender || "N/A"}</span>
-            </div>
-            <div className="view-actor-info-row">
-              <span className="view-actor-label">Date of Birth:</span>
+              <span className="view-actor-label">
+                Name:
+              </span>
+
               <span className="view-actor-value">
-                {actor?.dob ? moment(actor.dob).format("MMMM D, YYYY") : "N/A"}
+                {actor?.name || "N/A"}
               </span>
             </div>
+
             <div className="view-actor-info-row">
-              <span className="view-actor-label">Bio:</span>
+              <span className="view-actor-label">
+                Gender:
+              </span>
+
+              <span className="view-actor-value">
+                {actor?.gender || "N/A"}
+              </span>
+            </div>
+
+            <div className="view-actor-info-row">
+              <span className="view-actor-label">
+                Date of Birth:
+              </span>
+
+              <span className="view-actor-value">
+                {actor?.dob
+                  ? moment(actor.dob).format(
+                      "MMMM D, YYYY"
+                    )
+                  : "N/A"}
+              </span>
+            </div>
+
+            <div className="view-actor-info-row">
+              <span className="view-actor-label">
+                Bio:
+              </span>
+
               <span className="view-actor-value justify">
                 {actor?.bio || "N/A"}
               </span>

@@ -14,10 +14,7 @@ const EditProducer = () => {
   const { producers = [] } = useSelector(selectProducer);
 
   const [loading, setLoading] = useState(false);
-
   const [imageFile, setImageFile] = useState(null);
-
-  // Tracks whether user explicitly clicked Remove Image
   const [removeImage, setRemoveImage] = useState(false);
 
   const {
@@ -34,20 +31,14 @@ const EditProducer = () => {
     bio: "",
   });
 
-  // =========================================
-  // Fetch producers once if Redux is empty
-  // =========================================
-
+  // Fetch only if producer data is not already in Redux
   useEffect(() => {
     if (producers.length === 0) {
       fetchProducers();
     }
   }, []);
 
-  // =========================================
-  // Populate producer data
-  // =========================================
-
+  // Populate form immediately from Redux
   useEffect(() => {
     const data = producers.find(
       (producer) => producer.id == id
@@ -69,7 +60,7 @@ const EditProducer = () => {
     if (data.image) {
       setImageFile({
         uid: "-1",
-        name: "Producer-image",
+        name: "producer-image",
         status: "done",
         url: data.image,
       });
@@ -79,10 +70,6 @@ const EditProducer = () => {
 
     setRemoveImage(false);
   }, [id, producers]);
-
-  // =========================================
-  // Select new image
-  // =========================================
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -96,24 +83,19 @@ const EditProducer = () => {
       originFileObj: file,
     });
 
-    // Selecting a new image cancels removal
+    // New image means we are no longer removing it
     setRemoveImage(false);
   };
 
-  // =========================================
-  // Remove existing image
-  // =========================================
-
   const handleRemoveImage = () => {
     setImageFile(null);
-
-    // Tell backend to remove Cloudinary image
     setRemoveImage(true);
   };
 
-  // =========================================
-  // Submit
-  // =========================================
+  const handleClose = () => {
+    // Closing should never wait for an API call
+    navigate(-1);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -128,8 +110,6 @@ const EditProducer = () => {
         bio,
       } = formData;
 
-      // Always use FormData because this endpoint
-      // supports multipart image uploads.
       const payload = new FormData();
 
       payload.append("name", name);
@@ -144,10 +124,7 @@ const EditProducer = () => {
 
       payload.append("bio", bio);
 
-      // =====================================
-      // Case 1: New image selected
-      // =====================================
-
+      // New image selected
       if (imageFile?.originFileObj) {
         payload.append(
           "image",
@@ -160,10 +137,7 @@ const EditProducer = () => {
         );
       }
 
-      // =====================================
-      // Case 2: Remove Image clicked
-      // =====================================
-
+      // Existing image explicitly removed
       else if (removeImage) {
         payload.append(
           "removeImage",
@@ -171,10 +145,7 @@ const EditProducer = () => {
         );
       }
 
-      // =====================================
-      // Case 3: Existing image unchanged
-      // =====================================
-
+      // Existing image unchanged
       else {
         payload.append(
           "removeImage",
@@ -188,14 +159,6 @@ const EditProducer = () => {
       );
 
       if (res.data.id == id) {
-        showToast({
-          message:
-            res.message ||
-            "Producer updated successfully",
-          type: "success",
-        });
-
-        // Update Redux with backend response
         const list = producers.map(
           (producer) =>
             producer.id == id
@@ -204,6 +167,13 @@ const EditProducer = () => {
         );
 
         updateProducers(list);
+
+        showToast({
+          message:
+            res.message ||
+            "Producer updated successfully",
+          type: "success",
+        });
 
         navigate(-1);
       }
@@ -224,28 +194,20 @@ const EditProducer = () => {
     }
   };
 
-  // =========================================
-  // UI
-  // =========================================
-
   return (
     <div className="edit-producer-overlay-wrapper">
-
       <div
         className="edit-producer-overlay-background"
-        onClick={() => navigate(-1)}
+        onClick={handleClose}
       />
 
       <div className="edit-producer-overlay-content">
-
-        {/* Header */}
-
         <div className="edit-producer-header">
           <h2>Edit Producer</h2>
 
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={handleClose}
             className="edit-producer-close-btn"
           >
             ×
@@ -253,13 +215,7 @@ const EditProducer = () => {
         </div>
 
         <div className="edit-producer-body">
-
-          {/* =====================================
-              Image
-          ===================================== */}
-
           <div className="edit-producer-image-section">
-
             <input
               type="file"
               accept="image/*"
@@ -267,19 +223,14 @@ const EditProducer = () => {
               className="edit-producer-file-input"
             />
 
-            {imageFile?.url ? (
-              <img
-                src={imageFile.url}
-                alt="Producer preview"
-                className="edit-producer-image-preview"
-              />
-            ) : (
-              <img
-                src={default_image}
-                alt="Default producer"
-                className="edit-producer-image-preview"
-              />
-            )}
+            <img
+              src={
+                imageFile?.url ||
+                default_image
+              }
+              alt="Producer preview"
+              className="edit-producer-image-preview"
+            />
 
             {imageFile && (
               <button
@@ -292,19 +243,11 @@ const EditProducer = () => {
             )}
           </div>
 
-          {/* =====================================
-              Form
-          ===================================== */}
-
           <form
             onSubmit={handleSubmit}
             className="edit-producer-form-section"
           >
-
-            {/* Name */}
-
             <div className="edit-producer-form-row">
-
               <label className="edit-producer-label">
                 Name
               </label>
@@ -323,10 +266,7 @@ const EditProducer = () => {
               />
             </div>
 
-            {/* Gender */}
-
             <div className="edit-producer-form-row">
-
               <label className="edit-producer-label">
                 Gender
               </label>
@@ -342,7 +282,6 @@ const EditProducer = () => {
                 required
                 className="edit-producer-input"
               >
-
                 <option value="">
                   Select gender
                 </option>
@@ -358,14 +297,10 @@ const EditProducer = () => {
                 <option value="Other">
                   Other
                 </option>
-
               </select>
             </div>
 
-            {/* DOB */}
-
             <div className="edit-producer-form-row">
-
               <label className="edit-producer-label">
                 Date of Birth
               </label>
@@ -392,10 +327,7 @@ const EditProducer = () => {
               />
             </div>
 
-            {/* Bio */}
-
             <div className="edit-producer-form-row">
-
               <label className="edit-producer-label">
                 Bio
               </label>
@@ -414,10 +346,7 @@ const EditProducer = () => {
               />
             </div>
 
-            {/* Update */}
-
             <div className="edit-producer-form-row">
-
               <button
                 type="submit"
                 disabled={loading}
@@ -427,9 +356,7 @@ const EditProducer = () => {
                   ? "Updating..."
                   : "Update"}
               </button>
-
             </div>
-
           </form>
         </div>
       </div>

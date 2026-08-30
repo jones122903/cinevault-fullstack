@@ -9,72 +9,153 @@ import "./ViewMovie.css";
 
 const ViewMovie = () => {
   const { id } = useParams();
-  const { movies = [] } = useSelector(selectMovie);
-  const { fetchMovies, navigate } = Common();
-  const [movie, setMovie] = useState(null);
 
-  const onLoad = async () => {
-    const data = movies.find((m) => m.id == id);
-    if (!data) await fetchMovies();
-    const selected = movies.find((m) => m.id == id);
-    if (selected) setMovie(selected);
+  const { movies = [] } =
+    useSelector(selectMovie);
+
+  const { fetchMovies, navigate } =
+    Common();
+
+  const [movie, setMovie] =
+    useState(null);
+
+  // Fetch only if there are no movies in Redux at all.
+  useEffect(() => {
+    if (movies.length === 0) {
+      fetchMovies();
+    }
+  }, []);
+
+  // Find the current movie directly from Redux.
+  useEffect(() => {
+    const selectedMovie =
+      movies.find(
+        (movie) =>
+          movie.id == id
+      );
+
+    if (selectedMovie) {
+      setMovie(
+        selectedMovie
+      );
+    }
+  }, [id, movies]);
+
+  const handleClose = () => {
+    navigate(-1);
   };
 
-  useEffect(() => {
-    onLoad();
-  }, [id, movies]);
-console.log("Selected movie:", movie);
-console.log("Poster URL:", movie?.poster);
   return (
     <div className="viewmovie-overlay-wrapper">
       <div
         className="viewmovie-overlay-background"
-        onClick={() => navigate(-1)}
+        onClick={handleClose}
       />
+
       <div className="viewmovie-overlay-content">
-        <button className="viewmovie-close-btn" onClick={() => navigate(-1)}>
+        <button
+          type="button"
+          className="viewmovie-close-btn"
+          onClick={handleClose}
+        >
           ×
         </button>
-        <h1 className="viewmovie-title">Movie Details</h1>
+
+        <h1 className="viewmovie-title">
+          Movie Details
+        </h1>
 
         <div className="viewmovie-content">
           <div className="viewmovie-image-section">
             <img
-              src={movie?.poster || no_flag}
+              src={
+                movie?.poster ||
+                no_flag
+              }
               alt="Movie Poster"
               className="viewmovie-image"
             />
           </div>
+
           <div className="viewmovie-info-section">
             <div className="viewmovie-info-row">
-              <span className="label">Name:</span>
-              <span className="value">{movie?.name || "N/A"}</span>
+              <span className="label">
+                Name:
+              </span>
+
+              <span className="value">
+                {movie?.name ||
+                  "N/A"}
+              </span>
             </div>
+
             <div className="viewmovie-info-row">
-              <span className="label">English Name:</span>
-              <span className="value">{movie?.englishName || "N/A"}</span>
+              <span className="label">
+                English Name:
+              </span>
+
+              <span className="value">
+                {movie?.englishName ||
+                  "N/A"}
+              </span>
             </div>
+
             <div className="viewmovie-info-row">
-              <span className="label">Year of Release:</span>
-              <span className="value">{movie?.yearOfRelease || "N/A"}</span>
+              <span className="label">
+                Year of Release:
+              </span>
+
+              <span className="value">
+                {movie?.yearOfRelease ||
+                  "N/A"}
+              </span>
             </div>
+
             <div className="viewmovie-info-row">
-              <span className="label">Producer:</span>
-              <span className="value">{movie?.producer?.name || "N/A"}</span>
+              <span className="label">
+                Producer:
+              </span>
+
+              <span className="value">
+                {movie?.producer
+                  ?.name || "N/A"}
+              </span>
             </div>
+
             <div className="viewmovie-info-row">
-              <span className="label">Actors:</span>
+              <span className="label">
+                Actors:
+              </span>
+
               <span className="value tag-wrap">
-                {movie?.actors?.length > 0
-                  ? movie.actors.map((actor) => (
-                      <Tag key={actor.id}>{actor.name}</Tag>
-                    ))
+                {movie?.actors
+                  ?.length > 0
+                  ? movie.actors.map(
+                      (actor) => (
+                        <Tag
+                          key={
+                            actor.id
+                          }
+                        >
+                          {
+                            actor.name
+                          }
+                        </Tag>
+                      )
+                    )
                   : "N/A"}
               </span>
             </div>
+
             <div className="viewmovie-info-row">
-              <span className="label">Plot:</span>
-              <span className="value">{movie?.plot || "N/A"}</span>
+              <span className="label">
+                Plot:
+              </span>
+
+              <span className="value">
+                {movie?.plot ||
+                  "N/A"}
+              </span>
             </div>
           </div>
         </div>

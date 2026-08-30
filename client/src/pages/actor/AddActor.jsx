@@ -14,20 +14,42 @@ const AddActor = () => {
     dob: "",
     bio: "",
   });
+
   const { actors = [] } = useSelector(selectActor);
+
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
-  const { TokenRefreshedModal, navigate, updateActors, showToast } = Common();
+
+  const {
+    TokenRefreshedModal,
+    navigate,
+    updateActors,
+    showToast,
+  } = Common();
 
   const onInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
   };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
-      setImageFile({ file, url: URL.createObjectURL(file) });
+      setImageFile({
+        file,
+        url: URL.createObjectURL(file),
+      });
     }
   };
 
@@ -37,52 +59,87 @@ const AddActor = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.gender) newErrors.gender = "Gender is required";
-    if (!formData.dob) newErrors.dob = "Date of birth is required";
-    if (!formData.bio.trim()) newErrors.bio = "Bio is required";
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+
+    if (!formData.gender) {
+      newErrors.gender = "Gender is required";
+    }
+
+    if (!formData.dob) {
+      newErrors.dob = "Date of birth is required";
+    }
+
+    if (!formData.bio.trim()) {
+      newErrors.bio = "Bio is required";
+    }
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length == 0;
+
+    return Object.keys(newErrors).length === 0;
   };
 
   const onFinish = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
+
     try {
       const data = new FormData();
+
       data.append("name", formData.name);
       data.append("gender", formData.gender);
-      data.append("dob", moment(formData.dob).format("YYYY-MM-DD"));
+
+      data.append(
+        "dob",
+        moment(formData.dob).format("YYYY-MM-DD")
+      );
+
       data.append("bio", formData.bio);
+
       if (imageFile?.file) {
         data.append("image", imageFile.file);
       }
 
       const res = await CreateActor(data);
-      if (res.status == "success") {
+
+      if (res.status === "success") {
+        updateActors([
+          res.data,
+          ...actors,
+        ]);
+
         showToast({
-          message: res.message || "Actor Added successfully",
+          message:
+            res.message ||
+            "Actor added successfully",
           type: "success",
         });
-        const list = [res.data, ...actors];
-        updateActors(list);
+
         navigate(-1);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
+
       showToast({
-        message: err?.response?.data?.message || "Something went wrong",
+        message:
+          err?.response?.data?.message ||
+          "Something went wrong",
         type: "error",
       });
-      if (err?.response?.data?.message == "Token refreshed") {
+
+      if (
+        err?.response?.data?.message ===
+        "Token refreshed"
+      ) {
         TokenRefreshedModal();
-      } else {
-        console.log(err?.response?.data?.message || "Something went wrong");
       }
     } finally {
       setLoading(false);
-      navigate("/actors");
     }
   };
 
@@ -91,16 +148,40 @@ const AddActor = () => {
     onFinish();
   };
 
+  const handleClose = () => {
+    navigate(-1);
+  };
+
   return (
-    <div className="overlayWrapper">
-      <div className="overlayBackground" onClick={() => navigate(-1)} />
+    <div
+      className="overlayWrapper"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 99999,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        className="overlayBackground"
+        onClick={handleClose}
+      />
+
       <div className="overlayContent">
         <div className="header">
           <h2>Add Actor</h2>
-          <button onClick={() => navigate(-1)} className="closeBtn">
+
+          <button
+            type="button"
+            onClick={handleClose}
+            className="closeBtn"
+          >
             ×
           </button>
         </div>
+
         <div className="body">
           <div className="imageSection">
             <input
@@ -109,11 +190,16 @@ const AddActor = () => {
               onChange={handleFileChange}
               className="fileInput"
             />
+
             <img
-              src={imageFile?.url || default_image}
+              src={
+                imageFile?.url ||
+                default_image
+              }
               alt="preview"
               className="imagePreview"
             />
+
             {imageFile && (
               <button
                 type="button"
@@ -125,9 +211,15 @@ const AddActor = () => {
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="formSection">
+          <form
+            onSubmit={handleSubmit}
+            className="formSection"
+          >
             <div className="formRow">
-              <label className="label">Name</label>
+              <label className="label">
+                Name
+              </label>
+
               <input
                 type="text"
                 name="name"
@@ -135,29 +227,62 @@ const AddActor = () => {
                 onChange={onInputChange}
                 className="input"
               />
+
               {errors.name && (
-                <span style={{ color: "red" }}>{errors.name}</span>
+                <span
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  {errors.name}
+                </span>
               )}
             </div>
+
             <div className="formRow">
-              <label className="label">Gender</label>
+              <label className="label">
+                Gender
+              </label>
+
               <select
                 name="gender"
                 value={formData.gender}
                 onChange={onInputChange}
                 className="input"
               >
-                <option value="">Select gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                <option value="">
+                  Select gender
+                </option>
+
+                <option value="Male">
+                  Male
+                </option>
+
+                <option value="Female">
+                  Female
+                </option>
+
+                <option value="Other">
+                  Other
+                </option>
               </select>
+
               {errors.gender && (
-                <span style={{ color: "red" }}>{errors.gender}</span>
+                <span
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  {errors.gender}
+                </span>
               )}
             </div>
+
             <div className="formRow">
-              <label className="label">Date of Birth</label>
+              <label className="label">
+                Date of Birth
+              </label>
+
               <input
                 type="date"
                 name="dob"
@@ -165,10 +290,23 @@ const AddActor = () => {
                 onChange={onInputChange}
                 className="input"
               />
-              {errors.dob && <span style={{ color: "red" }}>{errors.dob}</span>}
+
+              {errors.dob && (
+                <span
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  {errors.dob}
+                </span>
+              )}
             </div>
+
             <div className="formRow">
-              <label className="label">Bio</label>
+              <label className="label">
+                Bio
+              </label>
+
               <textarea
                 rows={4}
                 name="bio"
@@ -176,11 +314,27 @@ const AddActor = () => {
                 onChange={onInputChange}
                 className="textarea"
               />
-              {errors.bio && <span style={{ color: "red" }}>{errors.bio}</span>}
+
+              {errors.bio && (
+                <span
+                  style={{
+                    color: "red",
+                  }}
+                >
+                  {errors.bio}
+                </span>
+              )}
             </div>
+
             <div className="formRow">
-              <button type="submit" disabled={loading} className="submitBtn">
-                {loading ? "Creating..." : "Create"}
+              <button
+                type="submit"
+                disabled={loading}
+                className="submitBtn"
+              >
+                {loading
+                  ? "Creating..."
+                  : "Create"}
               </button>
             </div>
           </form>
