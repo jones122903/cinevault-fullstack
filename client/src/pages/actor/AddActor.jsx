@@ -22,7 +22,6 @@ const AddActor = () => {
   const [errors, setErrors] = useState({});
 
   const {
-    TokenRefreshedModal,
     navigate,
     updateActors,
     showToast,
@@ -131,13 +130,6 @@ const AddActor = () => {
           "Something went wrong",
         type: "error",
       });
-
-      if (
-        err?.response?.data?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
     } finally {
       setLoading(false);
     }

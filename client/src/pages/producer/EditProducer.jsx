@@ -1,21 +1,32 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import moment from "moment";
+import { useParams } from "react-router-dom";
+
 import { UpdateProducer } from "../../services/Index";
 import default_image from "../../assets/default_image.svg";
-import { useParams } from "react-router-dom";
 import Common from "../../common/common";
-import { selectProducer } from "../../features/producer/producerSlice";
+
+import {
+  selectProducer,
+} from "../../features/producer/producerSlice";
+
 import "./EditProducer.css";
 
 const EditProducer = () => {
   const { id } = useParams();
 
-  const { producers = [] } = useSelector(selectProducer);
+  const { producers = [] } =
+    useSelector(selectProducer);
 
-  const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [removeImage, setRemoveImage] = useState(false);
+  const [loading, setLoading] =
+    useState(false);
+
+  const [imageFile, setImageFile] =
+    useState(null);
+
+  const [removeImage, setRemoveImage] =
+    useState(false);
 
   const {
     fetchProducers,
@@ -24,24 +35,31 @@ const EditProducer = () => {
     showToast,
   } = Common();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    gender: "",
-    dob: null,
-    bio: "",
-  });
+  const [formData, setFormData] =
+    useState({
+      name: "",
+      gender: "",
+      dob: null,
+      bio: "",
+    });
 
-  // Fetch only if producer data is not already in Redux
+  /*
+    Fetch producers only when
+    Redux does not already have them.
+  */
   useEffect(() => {
     if (producers.length === 0) {
       fetchProducers();
     }
   }, []);
 
-  // Populate form immediately from Redux
+  /*
+    Populate the form from Redux.
+  */
   useEffect(() => {
     const data = producers.find(
-      (producer) => producer.id == id
+      (producer) =>
+        producer.id == id
     );
 
     if (!data) {
@@ -72,18 +90,23 @@ const EditProducer = () => {
   }, [id, producers]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file =
+      e.target.files[0];
 
     if (!file) {
       return;
     }
 
     setImageFile({
-      url: URL.createObjectURL(file),
+      url:
+        URL.createObjectURL(file),
       originFileObj: file,
     });
 
-    // New image means we are no longer removing it
+    /*
+      A new image means we are
+      no longer removing the image.
+    */
     setRemoveImage(false);
   };
 
@@ -93,7 +116,6 @@ const EditProducer = () => {
   };
 
   const handleClose = () => {
-    // Closing should never wait for an API call
     navigate(-1);
   };
 
@@ -110,22 +132,39 @@ const EditProducer = () => {
         bio,
       } = formData;
 
-      const payload = new FormData();
+      const payload =
+        new FormData();
 
-      payload.append("name", name);
-      payload.append("gender", gender);
+      payload.append(
+        "name",
+        name
+      );
+
+      payload.append(
+        "gender",
+        gender
+      );
 
       payload.append(
         "dob",
         dob
-          ? dob.format("YYYY-MM-DD")
+          ? dob.format(
+              "YYYY-MM-DD"
+            )
           : ""
       );
 
-      payload.append("bio", bio);
+      payload.append(
+        "bio",
+        bio
+      );
 
-      // New image selected
-      if (imageFile?.originFileObj) {
+      /*
+        New image selected.
+      */
+      if (
+        imageFile?.originFileObj
+      ) {
         payload.append(
           "image",
           imageFile.originFileObj
@@ -137,7 +176,9 @@ const EditProducer = () => {
         );
       }
 
-      // Existing image explicitly removed
+      /*
+        Existing image explicitly removed.
+      */
       else if (removeImage) {
         payload.append(
           "removeImage",
@@ -145,7 +186,9 @@ const EditProducer = () => {
         );
       }
 
-      // Existing image unchanged
+      /*
+        Existing image unchanged.
+      */
       else {
         payload.append(
           "removeImage",
@@ -153,18 +196,22 @@ const EditProducer = () => {
         );
       }
 
-      const res = await UpdateProducer(
-        id,
-        payload
-      );
-
-      if (res.data.id == id) {
-        const list = producers.map(
-          (producer) =>
-            producer.id == id
-              ? res.data
-              : producer
+      const res =
+        await UpdateProducer(
+          id,
+          payload
         );
+
+      if (
+        res?.data?.id == id
+      ) {
+        const list =
+          producers.map(
+            (producer) =>
+              producer.id == id
+                ? res.data
+                : producer
+          );
 
         updateProducers(list);
 
@@ -185,7 +232,8 @@ const EditProducer = () => {
 
       showToast({
         message:
-          err?.response?.data?.message ||
+          err?.response?.data
+            ?.message ||
           "Something went wrong",
         type: "error",
       });
@@ -203,7 +251,9 @@ const EditProducer = () => {
 
       <div className="edit-producer-overlay-content">
         <div className="edit-producer-header">
-          <h2>Edit Producer</h2>
+          <h2>
+            Edit Producer
+          </h2>
 
           <button
             type="button"
@@ -219,7 +269,9 @@ const EditProducer = () => {
             <input
               type="file"
               accept="image/*"
-              onChange={handleFileChange}
+              onChange={
+                handleFileChange
+              }
               className="edit-producer-file-input"
             />
 
@@ -235,7 +287,9 @@ const EditProducer = () => {
             {imageFile && (
               <button
                 type="button"
-                onClick={handleRemoveImage}
+                onClick={
+                  handleRemoveImage
+                }
                 className="edit-producer-remove-btn"
               >
                 Remove Image
@@ -254,11 +308,14 @@ const EditProducer = () => {
 
               <input
                 type="text"
-                value={formData.name}
+                value={
+                  formData.name
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    name: e.target.value,
+                    name:
+                      e.target.value,
                   })
                 }
                 required
@@ -272,11 +329,14 @@ const EditProducer = () => {
               </label>
 
               <select
-                value={formData.gender}
+                value={
+                  formData.gender
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    gender: e.target.value,
+                    gender:
+                      e.target.value,
                   })
                 }
                 required
@@ -334,11 +394,14 @@ const EditProducer = () => {
 
               <textarea
                 rows={4}
-                value={formData.bio}
+                value={
+                  formData.bio
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    bio: e.target.value,
+                    bio:
+                      e.target.value,
                   })
                 }
                 required

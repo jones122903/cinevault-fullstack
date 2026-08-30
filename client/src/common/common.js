@@ -32,12 +32,6 @@ const Common = () => {
     navigate("/login");
   };
 
-  // Temporary safe function because some components
-  // already call TokenRefreshedModal()
-  const TokenRefreshedModal = () => {
-    console.log("Token refresh handling triggered");
-  };
-
   // =========================
   // Toast
   // =========================
@@ -160,14 +154,7 @@ const Common = () => {
     } catch (err) {
       console.error(err);
 
-      if (
-        err?.response?.data?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      } else if (
-        err?.response?.status !== 500
-      ) {
+      if (err?.response?.status !== 500) {
         showToast({
           message:
             err?.response?.data?.message ||
@@ -189,7 +176,6 @@ const Common = () => {
     navigate,
 
     LogoutModal,
-    TokenRefreshedModal,
 
     fetchActors,
     updateActors,

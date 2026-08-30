@@ -44,7 +44,6 @@ const Producers = ({
     useState(null);
 
   const {
-    TokenRefreshedModal,
     fetchProducers,
     showToast,
     updateProducers,
@@ -106,14 +105,6 @@ const Producers = ({
       }
     } catch (err) {
       console.error(err);
-
-      if (
-        err?.response?.data
-          ?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
 
       showToast({
         message:

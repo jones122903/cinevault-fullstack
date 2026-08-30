@@ -18,7 +18,6 @@ const Actors = ({ viewState, editState, addState }) => {
   const [targetActor, setTarget] = useState(null);
 
   const {
-    TokenRefreshedModal,
     fetchActors,
     updateActors,
     showToast,
@@ -74,13 +73,6 @@ const Actors = ({ viewState, editState, addState }) => {
       }
     } catch (err) {
       console.error(err);
-
-      if (
-        err?.response?.data?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
 
       showToast({
         message:

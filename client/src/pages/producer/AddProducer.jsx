@@ -18,7 +18,6 @@ const AddProducer = () => {
     navigate,
     updateProducers,
     showToast,
-    TokenRefreshedModal,
   } = Common();
 
   const [formData, setFormData] =
@@ -180,12 +179,6 @@ const AddProducer = () => {
       });
 
       if (
-        err?.response?.data
-          ?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      } else if (
         err?.response?.data
           ?.status ===
         "field_error"

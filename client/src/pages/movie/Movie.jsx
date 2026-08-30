@@ -51,7 +51,6 @@ const Movies = ({
     useSelector(selectMovie);
 
   const {
-    TokenRefreshedModal,
     fetchMovies,
     showToast,
   } = Common();
@@ -193,14 +192,6 @@ const Movies = ({
           "Something went wrong",
         type: "error",
       });
-
-      if (
-        err?.response?.data
-          ?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
     } finally {
       setLoading(false);
     }

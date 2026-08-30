@@ -5,8 +5,11 @@ import {
 
 import { useSelector } from "react-redux";
 import moment from "moment";
+import { useParams } from "react-router-dom";
 
-import { UpdateActor } from "../../services/Index";
+import {
+  UpdateActor,
+} from "../../services/Index";
 
 import default_image from "../../assets/default_image.svg";
 
@@ -14,7 +17,6 @@ import {
   selectActor,
 } from "../../features/actor/actorSlice";
 
-import { useParams } from "react-router-dom";
 import Common from "../../common/common";
 
 import "./EditActor.css";
@@ -31,6 +33,11 @@ const EditActor = () => {
   const [imageFile, setImageFile] =
     useState(null);
 
+  const [
+    removeImage,
+    setRemoveImage,
+  ] = useState(false);
+
   const {
     fetchActors,
     navigate,
@@ -46,17 +53,23 @@ const EditActor = () => {
       bio: "",
     });
 
-  // Only fetch if Redux is empty.
+  /*
+    Fetch actors only when
+    Redux does not already have them.
+  */
   useEffect(() => {
     if (actors.length === 0) {
       fetchActors();
     }
   }, []);
 
-  // Populate from Redux immediately.
+  /*
+    Populate the form from Redux.
+  */
   useEffect(() => {
     const data = actors.find(
-      (actor) => actor.id == id
+      (actor) =>
+        actor.id == id
     );
 
     if (!data) {
@@ -82,21 +95,38 @@ const EditActor = () => {
     } else {
       setImageFile(null);
     }
+
+    setRemoveImage(false);
   }, [id, actors]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file =
+      e.target.files[0];
 
-    if (file) {
-      setImageFile({
-        url: URL.createObjectURL(file),
-        originFileObj: file,
-      });
+    if (!file) {
+      return;
     }
+
+    setImageFile({
+      url:
+        URL.createObjectURL(file),
+      originFileObj: file,
+    });
+
+    /*
+      A newly selected image means
+      the image should not be removed.
+    */
+    setRemoveImage(false);
   };
 
   const handleRemoveImage = () => {
     setImageFile(null);
+    setRemoveImage(true);
+  };
+
+  const handleClose = () => {
+    navigate(-1);
   };
 
   const handleSubmit = async (e) => {
@@ -112,65 +142,86 @@ const EditActor = () => {
         bio,
       } = formData;
 
-      let res;
+      const payload =
+        new FormData();
 
-      if (imageFile?.originFileObj) {
-        const payload =
-          new FormData();
+      payload.append(
+        "name",
+        name
+      );
 
-        payload.append("name", name);
-        payload.append(
-          "gender",
-          gender
-        );
+      payload.append(
+        "gender",
+        gender
+      );
 
-        payload.append(
-          "dob",
-          dob
-            ? dob.format(
-                "YYYY-MM-DD"
-              )
-            : ""
-        );
+      payload.append(
+        "dob",
+        dob
+          ? dob.format(
+              "YYYY-MM-DD"
+            )
+          : ""
+      );
 
-        payload.append("bio", bio);
+      payload.append(
+        "bio",
+        bio
+      );
 
+      /*
+        New actor image selected.
+      */
+      if (
+        imageFile?.originFileObj
+      ) {
         payload.append(
           "image",
           imageFile.originFileObj
         );
 
-        res = await UpdateActor(
-          id,
-          payload
-        );
-      } else {
-        const payload = {
-          name,
-          gender,
-          dob: dob
-            ? dob.format(
-                "YYYY-MM-DD"
-              )
-            : "",
-          bio,
-          image:
-            imageFile?.url || null,
-        };
-
-        res = await UpdateActor(
-          id,
-          payload
+        payload.append(
+          "removeImage",
+          "false"
         );
       }
 
-      if (res.data.id == id) {
-        const list = actors.map(
-          (actor) =>
-            actor.id == id
-              ? res.data
-              : actor
+      /*
+        Existing image explicitly removed.
+      */
+      else if (removeImage) {
+        payload.append(
+          "removeImage",
+          "true"
         );
+      }
+
+      /*
+        Existing image unchanged.
+      */
+      else {
+        payload.append(
+          "removeImage",
+          "false"
+        );
+      }
+
+      const res =
+        await UpdateActor(
+          id,
+          payload
+        );
+
+      if (
+        res?.data?.id == id
+      ) {
+        const list =
+          actors.map(
+            (actor) =>
+              actor.id == id
+                ? res.data
+                : actor
+          );
 
         updateActors(list);
 
@@ -184,7 +235,10 @@ const EditActor = () => {
         navigate(-1);
       }
     } catch (err) {
-      console.error(err);
+      console.error(
+        "Actor update error:",
+        err
+      );
 
       showToast({
         message:
@@ -202,16 +256,18 @@ const EditActor = () => {
     <div className="overlayWrapper">
       <div
         className="overlayBackground"
-        onClick={() => navigate(-1)}
+        onClick={handleClose}
       />
 
       <div className="overlayContent">
         <div className="header">
-          <h2>Edit Actor</h2>
+          <h2>
+            Edit Actor
+          </h2>
 
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={handleClose}
             className="closeBtn"
           >
             ×
@@ -234,7 +290,7 @@ const EditActor = () => {
                 imageFile?.url ||
                 default_image
               }
-              alt="preview"
+              alt="Actor preview"
               className="imagePreview"
             />
 
@@ -262,12 +318,14 @@ const EditActor = () => {
 
               <input
                 type="text"
-                value={formData.name}
+                value={
+                  formData.name
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    name: e.target
-                      .value,
+                    name:
+                      e.target.value,
                   })
                 }
                 required
@@ -297,12 +355,15 @@ const EditActor = () => {
                 <option value="">
                   Select gender
                 </option>
+
                 <option value="Male">
                   Male
                 </option>
+
                 <option value="Female">
                   Female
                 </option>
+
                 <option value="Other">
                   Other
                 </option>
@@ -343,12 +404,14 @@ const EditActor = () => {
 
               <textarea
                 rows={4}
-                value={formData.bio}
+                value={
+                  formData.bio
+                }
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    bio: e.target
-                      .value,
+                    bio:
+                      e.target.value,
                   })
                 }
                 required

@@ -60,7 +60,6 @@ const AddMovie = () => {
     useSelector(selectMovie);
 
   const {
-    TokenRefreshedModal,
     updateMovies,
     navigate,
     fetchActors,
@@ -251,13 +250,6 @@ const AddMovie = () => {
           "Something went wrong",
         type: "error",
       });
-
-      if (
-        err?.response?.data?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
     } finally {
       setLoading(false);
     }

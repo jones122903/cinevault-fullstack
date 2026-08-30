@@ -82,7 +82,6 @@ const EditMovie = () => {
     useState({});
 
   const {
-    TokenRefreshedModal,
     updateMovies,
     navigate,
     fetchActors,
@@ -137,7 +136,7 @@ const EditMovie = () => {
 
     setPreviewURL(
       selectedMovie.poster ||
-        null
+      null
     );
   }, [
     id,
@@ -386,14 +385,6 @@ const EditMovie = () => {
           "Something went wrong",
         type: "error",
       });
-
-      if (
-        err?.response?.data
-          ?.message ===
-        "Token refreshed"
-      ) {
-        TokenRefreshedModal();
-      }
     } finally {
       setLoading(false);
     }
