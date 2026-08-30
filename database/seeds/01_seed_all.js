@@ -5,7 +5,7 @@ exports.seed = async function (knex) {
   // Read JSON file
   const dataPath = path.join(
     __dirname,
-    "../../imdb_clone_seeder.json"
+    "../../cinevault_seeder.json"
   );
 
   const seedData = JSON.parse(
